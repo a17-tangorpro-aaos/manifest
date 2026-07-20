@@ -6,57 +6,41 @@
           revision="android-17.0.0_r1-tangorpro" />
 
   <!-- ============================================================ -->
-  <!-- 1. SWAP OUT DEFAULT AOSP PROJECTS WITH OUR FORKS              -->
+  <!-- 1. REMOVE-PROJECT DECLARATIONS (MUST BE AT THE TOP)          -->
   <!-- ============================================================ -->
-  
-  <!-- Swap frameworks/base -->
   <remove-project name="platform/frameworks/base" />
-  <project path="frameworks/base" name="frameworks_base" remote="tangorpro-git" />
-
-  <!-- Swap Car UI/System components -->
   <remove-project name="platform/packages/apps/Car/SystemUI" />
-  <project path="packages/apps/Car/SystemUI" name="packages_apps_Car_SystemUI" remote="tangorpro-git" />
-
   <remove-project name="platform/packages/services/Car" />
-  <project path="packages/services/Car" name="packages_services_Car" remote="tangorpro-git" />
-
   <remove-project name="platform/packages/apps/Car/Settings" />
-  <project path="packages/apps/Car/Settings" name="packages_apps_Car_Settings" remote="tangorpro-git" />
-
-  <!-- Swap device Google Car config overlays -->
   <remove-project name="device/google_car" />
-  <project path="device/google_car" name="device_google_car" remote="tangorpro-git" />
-
-  <!-- Swap hardware interfaces -->
   <remove-project name="platform/hardware/interfaces" />
-  <project path="hardware/interfaces" name="hardware_interfaces" remote="tangorpro-git" />
-
-  <!-- Swap building / bootstrapping components -->
   <remove-project name="platform/build/release" />
-  <project path="build/release" name="build_release" remote="tangorpro-git" />
-
   <remove-project name="platform/build/soong" />
-  <project path="build/soong" name="build_soong" remote="tangorpro-git" />
-
-  <!-- Swap core platform libraries -->
   <remove-project name="platform/external/skia" />
-  <project path="external/skia" name="external_skia" remote="tangorpro-git" />
-
   <remove-project name="platform/system/core" />
-  <project path="system/core" name="system_core" remote="tangorpro-git" />
-
   <remove-project name="platform/system/extras" />
-  <project path="system/extras" name="system_extras" remote="tangorpro-git" />
-
   <remove-project name="platform/system/unwinding" />
-  <project path="system/unwinding" name="system_unwinding" remote="tangorpro-git" />
-
-  <!-- Swap toolchain binary libraries -->
   <remove-project name="platform/prebuilts/rust-toolchain/linux-musl-x86" />
+
+  <!-- ============================================================ -->
+  <!-- 2. CUSTOM PROJECT FORKS (SWAPPED IN)                         -->
+  <!-- ============================================================ -->
+  <project path="frameworks/base" name="frameworks_base" remote="tangorpro-git" />
+  <project path="packages/apps/Car/SystemUI" name="packages_apps_Car_SystemUI" remote="tangorpro-git" />
+  <project path="packages/services/Car" name="packages_services_Car" remote="tangorpro-git" />
+  <project path="packages/apps/Car/Settings" name="packages_apps_Car_Settings" remote="tangorpro-git" />
+  <project path="device/google_car" name="device_google_car" remote="tangorpro-git" />
+  <project path="hardware/interfaces" name="hardware_interfaces" remote="tangorpro-git" />
+  <project path="build/release" name="build_release" remote="tangorpro-git" />
+  <project path="build/soong" name="build_soong" remote="tangorpro-git" />
+  <project path="external/skia" name="external_skia" remote="tangorpro-git" />
+  <project path="system/core" name="system_core" remote="tangorpro-git" />
+  <project path="system/extras" name="system_extras" remote="tangorpro-git" />
+  <project path="system/unwinding" name="system_unwinding" remote="tangorpro-git" />
   <project path="prebuilts/rust-toolchain/linux-musl-x86" name="prebuilts_rust-toolchain_linux-musl-x86" remote="tangorpro-git" />
 
   <!-- ============================================================ -->
-  <!-- 2. ADD CUSTOM TENSOR / TANGORPRO PROJECTS (NOT IN AOSP DEFAULT)-->
+  <!-- 3. CUSTOM DEVICE ADDITIONS (NOT IN DEFAULT AOSP)             -->
   <!-- ============================================================ -->
   <project path="device/google/tangorpro" name="device_google_tangorpro" remote="tangorpro-git" />
   <project path="device/google/gs201" name="device_google_gs201" remote="tangorpro-git" />
