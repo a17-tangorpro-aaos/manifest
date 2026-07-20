@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Include the default clean Android 17 R1 AOSP manifest -->
+  <include name="aosp.xml" />
+
+  <!-- Include our custom overrides and device adaptation forks -->
+  <include name="aaos-17-tangorpro.xml" />
+</manifest>
