@@ -8,8 +8,6 @@
   <!-- ============================================================ -->
   <!-- 1. REMOVE-PROJECT DECLARATIONS (MUST BE AT THE TOP)          -->
   <!-- ============================================================ -->
-  <remove-project name="platform/frameworks/base" />
-  <remove-project name="platform/packages/apps/Car/SystemUI" />
   <remove-project name="platform/packages/apps/Car/Settings" />
   <remove-project name="device/google_car" />
   <remove-project name="platform/hardware/interfaces" />
@@ -24,8 +22,6 @@
   <!-- ============================================================ -->
   <!-- 2. CUSTOM PROJECT FORKS (SWAPPED IN)                         -->
   <!-- ============================================================ -->
-  <project path="frameworks/base" name="frameworks_base" remote="tangorpro-git" />
-  <project path="packages/apps/Car/SystemUI" name="packages_apps_Car_SystemUI" remote="tangorpro-git" />
   <project path="packages/apps/Car/Settings" name="packages_apps_Car_Settings" remote="tangorpro-git" />
   <project path="device/google_car" name="device_google_car" remote="tangorpro-git" />
   <project path="hardware/interfaces" name="hardware_interfaces" remote="tangorpro-git" />
