@@ -40,7 +40,11 @@
   <project path="device/google/gs-common" name="device_google_gs-common" remote="tangorpro-git" />
   <project path="device/google/gs201-sepolicy" name="device_google_gs201-sepolicy" remote="tangorpro-git" />
   <project path="device/google/gs101" name="device_google_gs101" remote="tangorpro-git" />
+  <project path="device/google/gs101-sepolicy" name="device/google/gs101-sepolicy" revision="refs/tags/android-15.0.0_r1" />
+  <project path="device/google/tangorpro-sepolicy" name="device/google/tangorpro-sepolicy" revision="refs/tags/android-15.0.0_r1" />
   <project path="hardware/google/pixel" name="hardware_google_pixel" remote="tangorpro-git" />
+  <project path="hardware/google/pixel-sepolicy" name="platform/hardware/google/pixel-sepolicy" revision="refs/tags/android-15.0.0_r1" />
+  <project path="hardware/google/gchips" name="platform/hardware/google/gchips" revision="refs/tags/android-15.0.0_r1" />
   <project path="hardware/google/graphics/common" name="hardware_google_graphics_common" remote="tangorpro-git" />
   <project path="hardware/google/graphics/gs201" name="hardware_google_graphics_gs201" remote="tangorpro-git" />
 
