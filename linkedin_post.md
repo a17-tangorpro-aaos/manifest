@@ -26,9 +26,9 @@ repo sync -c -j$(nproc)
 lunch aosp_tangorpro_car-trunk_staging-userdebug
 m
 
-# 4. Flash system images to the tablet (in bootloader mode)
+# 4. Flash system images (use either fastboot flashall or our manual flashing helper script)
 export ANDROID_PRODUCT_OUT=out/target/product/tangorpro
-fastboot flashall
+./flash_all_manual.sh
 ```
 
 ---

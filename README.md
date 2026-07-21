@@ -127,10 +127,31 @@ m
 ## 5. Flashing and Live System Verification
 
 ### A. Full Flashing
-Connect the tablet, boot it into the bootloader, and flash:
+If `fastboot flashall` fails or you need to flash partition blocks individually, use the helper script **[`flash_all_manual.sh`](file:///mnt/hemang/aaos_on_pixel/flash_all_manual.sh)**:
+
 ```bash
+# Set build resources output directory
 export ANDROID_PRODUCT_OUT=out/target/product/tangorpro
-fastboot flashall
+
+# Execute manual flashing sequence
+./flash_all_manual.sh
+```
+
+#### Manual Flashing Sequence (`flash_all_manual.sh` detail):
+```bash
+#!/bin/bash
+fastboot wait-for-device
+fastboot flash boot $ANDROID_PRODUCT_OUT/boot.img
+fastboot flash init_boot $ANDROID_PRODUCT_OUT/init_boot.img
+fastboot flash dtbo $ANDROID_PRODUCT_OUT/dtbo.img
+fastboot flash pvmfw $ANDROID_PRODUCT_OUT/pvmfw.img
+fastboot flash vendor_boot $ANDROID_PRODUCT_OUT/vendor_boot.img
+fastboot flash vendor_kernel_boot $ANDROID_PRODUCT_OUT/vendor_kernel_boot.img
+fastboot flash vbmeta $ANDROID_PRODUCT_OUT/vbmeta.img
+fastboot flash vbmeta_system $ANDROID_PRODUCT_OUT/vbmeta_system.img
+fastboot flash vbmeta_vendor $ANDROID_PRODUCT_OUT/vbmeta_vendor.img
+fastboot flash super $ANDROID_PRODUCT_OUT/super.img
+fastboot -w reboot
 ```
 
 ### B. Writable Developers Remount (Pushing incremental HAL updates)
