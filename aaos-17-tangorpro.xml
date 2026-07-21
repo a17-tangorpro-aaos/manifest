@@ -17,7 +17,6 @@
   <remove-project name="platform/system/core" />
   <remove-project name="platform/system/extras" />
   <remove-project name="platform/system/unwinding" />
-  <remove-project name="platform/prebuilts/rust-toolchain/linux-musl-x86" />
 
   <!-- ============================================================ -->
   <!-- 2. CUSTOM PROJECT FORKS (SWAPPED IN)                         -->
@@ -31,7 +30,6 @@
   <project path="system/core" name="system_core" remote="tangorpro-git" />
   <project path="system/extras" name="system_extras" remote="tangorpro-git" />
   <project path="system/unwinding" name="system_unwinding" remote="tangorpro-git" />
-  <project path="prebuilts/rust-toolchain/linux-musl-x86" name="prebuilts_rust-toolchain_linux-musl-x86" remote="tangorpro-git" />
 
   <!-- ============================================================ -->
   <!-- 3. CUSTOM DEVICE ADDITIONS (NOT IN DEFAULT AOSP)             -->
