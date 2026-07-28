@@ -59,10 +59,13 @@ repo sync -c -j$(nproc)
 ### 2. Download and Extract Proprietary Vendor Binaries
 The Pixel Tablet requires proprietary hardware drivers to function.
 
-1. Go to the [Google Driver Downloads page for Nexus and Pixel devices](https://developers.google.com/android/drivers).
-2. Download the binaries corresponding to your exact Android 17 build ID for the Pixel Tablet (`tangorpro`).
-3. Extract the downloaded `.tgz` files at the root of your AOSP source tree.
-4. Run the extracted `extract-google_devices-tangorpro.sh` script and accept the license agreement. This places the prebuilt `vendor.img` and other proprietary files into `vendor/google_devices/tangorpro/`.
+* **Driver Download Page:** [Google Drivers for Pixel Tablet (`tangorpro`)](https://developers.google.com/android/drivers#tangorpro)
+* **Required Driver Version:** **Pixel Tablet binaries for Android 15.0.0 (BP1A.250505.005)**
+
+**Extraction Steps:**
+1. Download the **Google Drivers** (`extract-google_devices-tangorpro-*.sh`) archive for the **Pixel Tablet (`tangorpro`)**.
+2. Extract the `.tgz` archive at the root of your AOSP source tree.
+3. Run `extract-google_devices-tangorpro.sh` and accept the license agreement. This populates `vendor/google_devices/tangorpro/` with proprietary binaries.
 
 ---
 
