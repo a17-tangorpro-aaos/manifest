@@ -34,16 +34,14 @@ Ensure your tablet's bootloader is unlocked (`fastboot flashing unlock`) and on 
   fastboot reboot
   ```
 
-*Note: The display is configured by default for landscape (rotation 3). You can lock or set it via:*
+*Note: The automated scripts (`flash-all.sh` / `flash-all.bat`) apply landscape display orientation and capacitive touch optimizations automatically. If setting up manually, run:*
 ```bash
 adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 3
-```
-
-*Tip: Because physical rotary knobs are not present on a tablet, disable the rotary accessibility service if touch events are ever intercepted:*
-```bash
 adb shell pm disable-user --user 0 com.android.car.rotary
 adb shell pm disable-user --user 10 com.android.car.rotary
+adb shell pm disable-user --user 10 com.android.car.stub.launcher
+adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 ```
 
 ---
