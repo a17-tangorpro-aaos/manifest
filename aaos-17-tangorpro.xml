@@ -17,11 +17,13 @@
   <remove-project name="platform/system/core" />
   <remove-project name="platform/system/extras" />
   <remove-project name="platform/system/unwinding" />
+  <remove-project name="platform/packages/services/Car" />
 
   <!-- ============================================================ -->
   <!-- 2. CUSTOM PROJECT FORKS (SWAPPED IN)                         -->
   <!-- ============================================================ -->
   <project path="packages/apps/Car/Settings" name="packages_apps_Car_Settings" remote="tangorpro-git" />
+  <project path="packages/services/Car" name="packages_services_Car" remote="tangorpro-git" />
   <project path="device/google_car" name="device_google_car" remote="tangorpro-git" />
   <project path="hardware/interfaces" name="hardware_interfaces" remote="tangorpro-git" />
   <project path="build/release" name="build_release" remote="tangorpro-git" />
