@@ -1,19 +1,35 @@
-# Android Automotive OS 17 on Google Pixel Tablet (tangorpro)
+# Android Automotive OS 17 (Baklava) on Google Pixel Tablet (`tangorpro`)
 
-This repository provides the manifest and build instructions to compile and run Android Automotive OS 17 (Baklava) on the Google Pixel Tablet (`tangorpro`).
+[![Release](https://img.shields.io/github/v/release/a17-tangorpro-aaos/manifest?color=blue&label=Release&style=flat-square)](https://github.com/a17-tangorpro-aaos/manifest/releases/tag/v17.0-baklava-v1.0)
+[![Target](https://img.shields.io/badge/Device-Pixel%20Tablet%20(tangorpro)-informational?style=flat-square)](https://developers.google.com/android/images#tangorpro)
+[![SoC](https://img.shields.io/badge/SoC-Google%20Tensor%20G2-blueviolet?style=flat-square)](https://store.google.com)
+[![AOSP](https://img.shields.io/badge/AOSP-17.0%20(Baklava)-orange?style=flat-square)](https://android.googlesource.com)
+[![Kernel](https://img.shields.io/badge/Kernel-6.1%20LTS-success?style=flat-square)](https://android.googlesource.com/device/google/tangorpro-kernels/6.1)
+[![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey?style=flat-square)](LICENSE)
 
-The Pixel Tablet is powered by the Google Tensor G2 SoC and ships with standard consumer Android firmware and a prebuilt vendor partition. Running AAOS 17 on this hardware requires adapting the automotive framework to a single tablet display, relocating automotive hardware abstraction layers (VHAL, AudioControl) to `system_ext` to maintain Treble boundaries, and patching the BootControl HAL to prevent A/B boot slot lockouts.
+This repository provides the manifest and complete build instructions to compile and run **Android Automotive OS 17 (Baklava)** natively on the **Google Pixel Tablet (`tangorpro`)**.
+
+---
+
+### Quick Navigation
+[**Prebuilt Flashing**](#flashing-prebuilt-images) • 
+[**Source Code Setup**](#source-code-setup) • 
+[**Repository Reference**](#repository-structure--modifications) • 
+[**Technical Architecture**](#technical-architecture) • 
+[**Building from Source**](#compilation-and-flashing) • 
+[**Subsystem Status**](#subsystem-status) • 
+[**Revert to Stock**](#reverting-to-stock-android-15)
 
 ---
 
 ## Requirements
 
 ### Host Environment
-- **Operating System:** Ubuntu 22.04 LTS or 24.04 LTS (x86_64)
-- **CPU:** 16+ physical cores recommended
-- **RAM:** 32 GB minimum (configure at least 32 GB swap if building with 32 GB RAM)
-- **Storage:** 400 GB free space on NVMe storage
-- **Packages:**
+* **Operating System:** Ubuntu 22.04 LTS or 24.04 LTS (x86_64)
+* **CPU:** 16+ physical cores recommended
+* **RAM:** 32 GB minimum (configure at least 32 GB swap if building with 32 GB RAM)
+* **Storage:** 400 GB free space on NVMe storage
+* **Packages:**
   ```bash
   sudo apt update
   sudo apt install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev \
@@ -21,23 +37,23 @@ The Pixel Tablet is powered by the Google Tensor G2 SoC and ships with standard 
       libxml2-utils xsltproc unzip fontconfig python3 python3-pip \
       android-sdk-platform-tools-common e2fsprogs f2fs-tools
   ```
-- **Repo tool:** Google's `repo` tool installed in `$PATH`.
+* **Repo tool:** Google's `repo` binary installed in `$PATH`.
 
 ### Target Device
-- Google Pixel Tablet (`tangorpro`)
-- Unlocked bootloader (`fastboot flashing unlock`)
-- Baseline factory firmware: Android 15.0.0 (`BP1A.250505.005`)
-- High-quality USB-C cable connected directly to a rear motherboard port (avoid USB hubs)
+* Google Pixel Tablet (`tangorpro`)
+* Unlocked bootloader (`fastboot flashing unlock`)
+* Baseline factory firmware: Android 15.0.0 (**`BP1A.250505.005`**)
+* High-quality USB-C cable connected directly to a rear motherboard port (avoid USB hubs)
 
 ---
 
 ## Flashing Prebuilt Images
 
 Tested prebuilt images are available on GitHub Releases:
-- **Release:** [AAOS 17 Baklava Release v1.0](https://github.com/a17-tangorpro-aaos/manifest/releases/tag/v17.0-baklava-v1.0)
-- **Archive:** `aaos17_pixel_tablet_tangorpro_v1.0.zip` (1.4 GB)
+* **Release:** [AAOS 17 Baklava Release v1.0](https://github.com/a17-tangorpro-aaos/manifest/releases/tag/v17.0-baklava-v1.0)
+* **Archive:** `aaos17_pixel_tablet_tangorpro_v1.0.zip` (1.39 GB)
 
-### Method A: Automated Flashing
+### Method A: Automated Flashing (Recommended)
 Put the tablet into Fastboot mode by holding **Power + Volume Down** from a powered-off state. Extract the archive and execute the flash script:
 
 ```bash
@@ -49,10 +65,11 @@ chmod +x flash-all.sh
 flash-all.bat
 ```
 
-The script verifies device unlock status, flashes partitions with `--disable-verity --disable-verification`, writes `super.img`, formats userdata, reboots, and configures landscape orientation and input handling over ADB.
+> [!TIP]
+> The automated script verifies device unlock status, flashes partitions with `--disable-verity --disable-verification`, writes `super.img`, formats userdata, reboots, and configures landscape orientation and touch handling over ADB.
 
 ### Method B: Manual Fastboot Flashing
-Standalone release archives bundle the dynamic partitions into `super.img` rather than supplying uncompressed image files. Flash partitions explicitly rather than using `fastboot flashall`:
+Standalone release archives bundle dynamic partitions into `super.img` rather than supplying uncompressed images. Flash partitions explicitly:
 
 ```bash
 fastboot flash boot boot.img
@@ -69,10 +86,11 @@ fastboot -w reboot
 ```
 
 ### First-Boot Provisioning
-First boot takes approximately 60–90 seconds while runtime caches initialize. Once the device boots, run these ADB commands to configure display rotation and disable rotary controller touch interception:
+Initial boot takes approximately 60–90 seconds while runtime caches initialize. Once the device boots into Android, run these ADB commands to configure display rotation and disable rotary controller touch interception:
 
 ```bash
 adb wait-for-device
+
 # Force physical landscape display orientation (270 degrees)
 adb shell settings put system accelerometer_rotation 0
 adb shell settings put system user_rotation 3
@@ -101,8 +119,8 @@ repo sync -c -j$(nproc)
 
 ### 2. Extract Proprietary Vendor Binaries
 The Pixel Tablet requires Tensor G2 drivers from Google:
-- **Build ID:** Android 15.0.0 (`BP1A.250505.005`)
-- **Download Link:** [Google Drivers for Pixel Devices](https://developers.google.com/android/drivers#tangorpro)
+* **Build ID:** Android 15.0.0 (`BP1A.250505.005`)
+* **Download Link:** [Google Drivers for Pixel Devices](https://developers.google.com/android/drivers#tangorpro)
 
 Extract the archive at the root of the AOSP workspace and run the extraction script:
 ```bash
@@ -117,32 +135,51 @@ Accept the license agreement. This populates `vendor/google_devices/tangorpro/`.
 
 The manifest replaces upstream repositories with adapted forks from [`a17-tangorpro-aaos`](https://github.com/a17-tangorpro-aaos):
 
-| Repository | Path in Tree | Branch | Description & Key Changes |
+| Repository | Path in Source Tree | Branch | Description & Key Changes |
 | :--- | :--- | :--- | :--- |
-| `manifest` | `manifest/` | `android-17.0.0_r1-tangorpro` | Manifest definitions chaining upstream AOSP with tangorpro overlays. |
-| `packages_apps_Car_Settings` | `packages/apps/Car/Settings` | `android-17.0.0_r1-tangorpro` | Automotive settings adapted for tablet screens and Wi-Fi/BT navigation. |
-| `packages_services_Car` | `packages/services/Car` | `android-17.0.0_r1-tangorpro` | `CarUpdatableDewdRRO` overlay (single task stack, default `CarLauncher`). |
-| `device_google_car` | `device/google_car` | `android-17.0.0_r1-tangorpro` | Clean automotive base product definitions with proprietary dependencies removed. |
-| `hardware_interfaces` | `hardware/interfaces` | `android-17.0.0_r1-tangorpro` | Relocated Vehicle HAL (VHAL) & AudioControl HAL to `system_ext` (`type="framework"`). |
-| `build_release` | `build/release` | `android-17.0.0_r1-tangorpro` | Release flag configuration for Android 17 trunk staging. |
-| `build_soong` | `build/soong` | `android-17.0.0_r1-tangorpro` | Soong build modifications for automotive targets. |
-| `external_skia` | `external/skia` | `android-17.0.0_r1-tangorpro` | Skia 2D graphics rendering build configuration. |
-| `system_core` | `system/core` | `android-17.0.0_r1-tangorpro` | Removed incompatible `rust_static_std` defaults in debuggerd. |
-| `system_extras` | `system/extras` | `android-17.0.0_r1-tangorpro` | Fixed Rust linking dependencies in simpleperf. |
-| `system_unwinding` | `system/unwinding` | `android-17.0.0_r1-tangorpro` | Fixed Rust linking dependencies in libunwindstack. |
-| `device_google_tangorpro` | `device/google/tangorpro` | `android-17.0.0_r1-tangorpro` | `aosp_tangorpro_car.mk`, touchscreen IDC rules, audio routing, display configs. |
-| `device_google_gs201` | `device/google/gs201` | `android-17.0.0_r1-tangorpro` | Tensor G2 platform definitions and kernel cmdline (`panic=0`). |
-| `device_google_gs-common` | `device/google/gs-common` | `android-17.0.0_r1-tangorpro` | Patched BootControl HAL (AIDL & HIDL) for slot safety (anti-EDL lockout). |
-| `device_google_gs201-sepolicy` | `device/google/gs201-sepolicy` | `android-17.0.0_r1-tangorpro` | SELinux policies for automotive services in `system_ext`. |
-| `device_google_gs101` | `device/google/gs101` | `android-17.0.0_r1-tangorpro` | Tensor base definitions and display compositor interfaces. |
-| `hardware_google_pixel` | `hardware/google/pixel` | `android-17.0.0_r1-tangorpro` | Pixel hardware abstraction interfaces. |
-| `hardware_google_graphics_common` | `hardware/google/graphics/common` | `android-17.0.0_r1-tangorpro` | Buffer allocation and common graphics interfaces. |
-| `hardware_google_graphics_gs101` | `hardware/google/graphics/gs101` | `android-17.0.0_r1-tangorpro` | Exynos HWC compositor (`libhwc2.1`) enabling 60fps hardware acceleration. |
-| `hardware_google_graphics_gs201` | `hardware/google/graphics/gs201` | `android-17.0.0_r1-tangorpro` | Gralloc and hardware composer bindings for Tensor G2. |
+| [`manifest`](https://github.com/a17-tangorpro-aaos/manifest) | `manifest/` | `android-17.0.0_r1-tangorpro` | Custom manifest chaining upstream AOSP with tangorpro forks. |
+| [`packages_apps_Car_Settings`](https://github.com/a17-tangorpro-aaos/packages_apps_Car_Settings) | `packages/apps/Car/Settings` | `android-17.0.0_r1-tangorpro` | Automotive settings adapted for tablet screens and networking menus. |
+| [`packages_services_Car`](https://github.com/a17-tangorpro-aaos/packages_services_Car) | `packages/services/Car` | `android-17.0.0_r1-tangorpro` | `CarUpdatableDewdRRO` overlay (single task stack, default `CarLauncher`). |
+| [`device_google_car`](https://github.com/a17-tangorpro-aaos/device_google_car) | `device/google_car` | `android-17.0.0_r1-tangorpro` | Clean automotive base product definitions (removed proprietary GMS ties). |
+| [`hardware_interfaces`](https://github.com/a17-tangorpro-aaos/hardware_interfaces) | `hardware/interfaces` | `android-17.0.0_r1-tangorpro` | Relocated Vehicle HAL (VHAL) & AudioControl HAL to `system_ext`. |
+| [`build_release`](https://github.com/a17-tangorpro-aaos/build_release) | `build/release` | `android-17.0.0_r1-tangorpro` | Release flag configuration for Android 17 trunk staging. |
+| [`build_soong`](https://github.com/a17-tangorpro-aaos/build_soong) | `build/soong` | `android-17.0.0_r1-tangorpro` | Soong build modifications for automotive targets. |
+| [`external_skia`](https://github.com/a17-tangorpro-aaos/external_skia) | `external/skia` | `android-17.0.0_r1-tangorpro` | Skia 2D graphics rendering build configuration. |
+| [`system_core`](https://github.com/a17-tangorpro-aaos/system_core) | `system/core` | `android-17.0.0_r1-tangorpro` | Removed incompatible `rust_static_std` defaults in debuggerd. |
+| [`system_extras`](https://github.com/a17-tangorpro-aaos/system_extras) | `system/extras` | `android-17.0.0_r1-tangorpro` | Fixed Rust linking dependencies in simpleperf. |
+| [`system_unwinding`](https://github.com/a17-tangorpro-aaos/system_unwinding) | `system/unwinding` | `android-17.0.0_r1-tangorpro` | Fixed Rust linking dependencies in libunwindstack. |
+| [`device_google_tangorpro`](https://github.com/a17-tangorpro-aaos/device_google_tangorpro) | `device/google/tangorpro` | `android-17.0.0_r1-tangorpro` | `aosp_tangorpro_car.mk`, touchscreen IDC rules, audio routing, display configs. |
+| [`device_google_gs201`](https://github.com/a17-tangorpro-aaos/device_google_gs201) | `device/google/gs201` | `android-17.0.0_r1-tangorpro` | Tensor G2 platform definitions and kernel cmdline (`panic=0`). |
+| [`device_google_gs-common`](https://github.com/a17-tangorpro-aaos/device_google_gs-common) | `device/google/gs-common` | `android-17.0.0_r1-tangorpro` | Patched BootControl HAL (AIDL & HIDL) for slot safety (anti-EDL lockout). |
+| [`device_google_gs201-sepolicy`](https://github.com/a17-tangorpro-aaos/device_google_gs201-sepolicy) | `device/google/gs201-sepolicy` | `android-17.0.0_r1-tangorpro` | SELinux policies for automotive services in `system_ext`. |
+| [`device_google_gs101`](https://github.com/a17-tangorpro-aaos/device_google_gs101) | `device/google/gs101` | `android-17.0.0_r1-tangorpro` | Tensor base definitions and display compositor interfaces. |
+| [`hardware_google_pixel`](https://github.com/a17-tangorpro-aaos/hardware_google_pixel) | `hardware/google/pixel` | `android-17.0.0_r1-tangorpro` | Pixel hardware abstraction interfaces. |
+| [`hardware_google_graphics_common`](https://github.com/a17-tangorpro-aaos/hardware_google_graphics_common) | `hardware/google/graphics/common` | `android-17.0.0_r1-tangorpro` | Buffer allocation and common graphics interfaces. |
+| [`hardware_google_graphics_gs101`](https://github.com/a17-tangorpro-aaos/hardware_google_graphics_gs101) | `hardware/google/graphics/gs101` | `android-17.0.0_r1-tangorpro` | Exynos HWC compositor (`libhwc2.1`) enabling 60fps hardware acceleration. |
+| [`hardware_google_graphics_gs201`](https://github.com/a17-tangorpro-aaos/hardware_google_graphics_gs201) | `hardware/google/graphics/gs201` | `android-17.0.0_r1-tangorpro` | Gralloc and hardware composer bindings for Tensor G2. |
 
 ---
 
 ## Technical Architecture
+
+```text
++-------------------------------------------------------------------------+
+|                       Android Automotive Framework                      |
+|           (CarService, CarAudioService, CarLauncher, SystemUI)          |
++------------------------------------+------------------------------------+
+                                     |
+                   +-----------------+-----------------+
+                   |                                   |
+                   v (Late Mount)                      v (Early Init)
++------------------------------------+   +--------------------------------+
+|            system_ext              |   |             vendor             |
+| ---------------------------------- |   | ------------------------------ |
+| • Vehicle HAL (VHAL) [AIDL]        |   | • BootControl HAL [AIDL]       |
+| • AudioControl HAL [AIDL]          |   |   (class early_hal)            |
+| • Framework-level Automotive HALs  |   | • Stock Proprietary Binaries   |
+| • type="framework" in VINTF        |   | • Untouched SELinux Policy     |
++------------------------------------+   +--------------------------------+
+```
 
 ### 1. BootControl HAL Slot Safety & Prebuilt Vendor Injection
 The Pixel bootloader (ABL) records boot attempt counts in `devinfo`. If an unhandled crash or freeze occurs across consecutive boots, ABL decrements `retry_count`. When both slots reach `retry_count = 0`, the device enters Exynos emergency download (EDL) mode (`18d1:4f00`).
@@ -163,13 +200,16 @@ A common question in Treble bring-up is: *Why inject BootControl into `vendor.im
 
 Because Google's driver package provides `vendor.img` as an existing filesystem (`vendor/google_devices/tangorpro/proprietary/vendor.img`), running `m superimage` packages Google's stock vendor image rather than the newly built binary from `out/target/product/tangorpro/vendor/bin/hw/`.
 
+#### Automated BootControl Injection
 We provide an automated script [`inject_bootcontrol_hal.sh`](file:///mnt/hemang/aaos_on_pixel/inject_bootcontrol_hal.sh) to handle this injection and rebuild `super.img`:
 ```bash
 ./inject_bootcontrol_hal.sh
 ```
 
-*(Optional) Manual debugfs injection:*
-For developers who prefer executing the steps manually:
+<details>
+<summary><b>Manual debugfs injection steps (Alternative)</b></summary>
+
+For developers who prefer executing the filesystem modifications manually:
 ```bash
 # 1. Build the BootControl HAL binary
 m android.hardware.boot-service.default-pixel -j$(nproc)
@@ -202,15 +242,13 @@ fi
 # 4. Pack the final dynamic super partition
 m superimage -j$(nproc)
 ```
+</details>
 
 **Verification:**
 After booting, check kernel log:
 ```bash
 adb shell dmesg | grep bootcontrolhal
-```
-Expected output:
-```text
-bootcontrolhal: BootControl safety patch (AIDL): forcing slots to be bootable and successful
+# Expected: bootcontrolhal: BootControl safety patch (AIDL): forcing slots to be bootable and successful
 ```
 In fastboot mode, verify that retry counters are preserved:
 ```bash
@@ -284,14 +322,14 @@ ANDROID_PRODUCT_OUT=out/target/product/tangorpro fastboot flashall -w --disable-
 ## Subsystem Status
 
 | Subsystem | Status | Technical Details |
-| :--- | :--- | :--- |
-| Graphics & Display | Working | 60fps hardware-accelerated rendering via `libhwc2.1` Exynos HWC. |
-| Touchscreen & Stylus | Working | Landscape digitizer coordinate mapping via `NVTCapacitiveTouchScreen.idc`. |
-| Wi-Fi (802.11ax) | Working | Functional via Tensor G2 Wi-Fi HAL. |
-| Bluetooth 5.2 | Working | Functional for audio streaming and input devices. |
-| Audio Routing | Working | Multizone `CarAudioService` with Dynamic Audio Routing. |
-| Vehicle HAL (VHAL) | Working | AIDL Mock VHAL running in `system_ext` with `CarSettings` support. |
-| Boot & Slot Safety | Working | BootControl HAL slot safety (`retry_count = 3`, `successful = 1`). |
+| :--- | :---: | :--- |
+| **Graphics & Display** | `🟢 Operational` | 60fps hardware-accelerated rendering via `libhwc2.1` Exynos HWC. |
+| **Touchscreen & Stylus** | `🟢 Operational` | Landscape digitizer coordinate mapping via `NVTCapacitiveTouchScreen.idc`. |
+| **Wi-Fi (802.11ax)** | `🟢 Operational` | Functional via Tensor G2 Wi-Fi HAL. |
+| **Bluetooth 5.2** | `🟢 Operational` | Functional for audio streaming and input devices. |
+| **Audio Routing** | `🟢 Operational` | Multizone `CarAudioService` with Dynamic Audio Routing. |
+| **Vehicle HAL (VHAL)** | `🟢 Operational` | AIDL Mock VHAL running in `system_ext` with `CarSettings` support. |
+| **Boot & Slot Safety** | `🟢 Operational` | BootControl HAL slot safety (`retry_count = 3`, `successful = 1`). |
 
 ---
 
@@ -346,6 +384,6 @@ The Android Flash Tool runs directly in Chromium-based browsers (Chrome, Brave, 
    ```
    This reflashes all stock factory partitions, restores stock AVB metadata signatures, and formats `userdata`.
 
+> [!CAUTION]
 > **Warning regarding Bootloader Locking:**  
 > Do not attempt to re-lock the bootloader (`fastboot flashing lock`) while custom partitions or disabled AVB verification flags are active. Only re-lock the bootloader after stock factory images have been flashed and the device has completed a full, successful boot into stock Android.
-
