@@ -292,3 +292,42 @@ fastboot set_active a
 # Reboot
 fastboot reboot
 ```
+
+---
+
+## Reverting to Stock Android 15
+
+To return the Pixel Tablet from AAOS 17 back to standard consumer Android 15, use either Google's web-based Android Flash Tool or the official factory image package.
+
+### Option A: Android Flash Tool (Web Browser)
+The Android Flash Tool runs directly in Chromium-based browsers (Chrome, Brave, Chromium) using WebUSB.
+
+1. Connect the tablet to your PC and boot into Fastboot mode (**Power + Volume Down**).
+2. Open [flash.android.com](https://flash.android.com) in your browser.
+3. Select **Add new device** and choose the Pixel Tablet (`tangorpro`).
+4. Select the target build: **Android 15.0.0 (`BP1A.250505.005`)** or the latest stable release.
+5. In the flash configuration, enable **Wipe Device** and **Force Flash All Partitions**.
+6. Click **Install build** and keep the device connected until the process completes.
+
+### Option B: Fastboot Factory Image Package
+1. Download the official factory image for the Pixel Tablet (`tangorpro`):
+   - [Google Pixel Factory Images](https://developers.google.com/android/images#tangorpro)
+   - Target build: `BP1A.250505.005` (or newer).
+2. Extract the archive:
+   ```bash
+   unzip tangorpro-bp1a.250505.005-factory-*.zip
+   cd tangorpro-bp1a.250505.005
+   ```
+3. Put the device into Fastboot mode and run the factory flasher:
+   ```bash
+   # Linux / macOS:
+   ./flash-all.sh
+
+   # Windows:
+   flash-all.bat
+   ```
+   This reflashes all stock factory partitions, restores stock AVB metadata signatures, and formats `userdata`.
+
+> **Warning regarding Bootloader Locking:**  
+> Do not attempt to re-lock the bootloader (`fastboot flashing lock`) while custom partitions or disabled AVB verification flags are active. Only re-lock the bootloader after stock factory images have been flashed and the device has completed a full, successful boot into stock Android.
+
