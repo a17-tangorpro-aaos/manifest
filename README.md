@@ -1,9 +1,9 @@
 # Android Automotive OS 17 (Baklava) on Google Pixel Tablet (`tangorpro`)
 
 [![Release](https://img.shields.io/github/v/release/a17-tangorpro-aaos/manifest?color=blue&label=Release&style=flat-square)](https://github.com/a17-tangorpro-aaos/manifest/releases/tag/v17.0-baklava-v1.0)
-[![Target](https://img.shields.io/badge/Device-Pixel%20Tablet%20(tangorpro)-informational?style=flat-square)](https://developers.google.com/android/images#tangorpro)
+[![Target](https://img.shields.io/badge/Device-Pixel%20Tablet%20%28tangorpro%29-informational?style=flat-square)](https://developers.google.com/android/images#tangorpro)
 [![SoC](https://img.shields.io/badge/SoC-Google%20Tensor%20G2-blueviolet?style=flat-square)](https://store.google.com)
-[![AOSP](https://img.shields.io/badge/AOSP-17.0%20(Baklava)-orange?style=flat-square)](https://android.googlesource.com)
+[![AOSP](https://img.shields.io/badge/AOSP-17.0%20%28Baklava%29-orange?style=flat-square)](https://android.googlesource.com)
 [![Kernel](https://img.shields.io/badge/Kernel-6.1%20LTS-success?style=flat-square)](https://android.googlesource.com/device/google/tangorpro-kernels/6.1)
 [![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey?style=flat-square)](LICENSE)
 
