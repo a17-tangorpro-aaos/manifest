@@ -163,8 +163,13 @@ A common question in Treble bring-up is: *Why inject BootControl into `vendor.im
 
 Because Google's driver package provides `vendor.img` as an existing filesystem (`vendor/google_devices/tangorpro/proprietary/vendor.img`), running `m superimage` packages Google's stock vendor image rather than the newly built binary from `out/target/product/tangorpro/vendor/bin/hw/`.
 
-To ensure the patched HAL is included in `super.img`, inject the compiled binary into the vendor image using `debugfs`:
+We provide an automated script [`inject_bootcontrol_hal.sh`](file:///mnt/hemang/aaos_on_pixel/inject_bootcontrol_hal.sh) to handle this injection and rebuild `super.img`:
+```bash
+./inject_bootcontrol_hal.sh
+```
 
+*(Optional) Manual debugfs injection:*
+For developers who prefer executing the steps manually:
 ```bash
 # 1. Build the BootControl HAL binary
 m android.hardware.boot-service.default-pixel -j$(nproc)
@@ -253,11 +258,11 @@ cd ~/aaos_on_pixel
 source build/envsetup.sh
 lunch aosp_tangorpro_car-trunk_staging-userdebug
 
-# Build the complete tree
+# 1. Compile the complete tree
 m -j$(nproc)
 
-# Inject the BootControl HAL into vendor.img (refer to the debugfs steps above), then:
-m superimage -j$(nproc)
+# 2. Inject BootControl HAL into vendor.img and rebuild super.img
+./inject_bootcontrol_hal.sh
 ```
 
 ### 2. Flashing the Source Build
