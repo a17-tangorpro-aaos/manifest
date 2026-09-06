@@ -153,8 +153,15 @@ To ensure safe recovery during development, `device/google/gs-common/bootctrl/ai
 reset_boot_slots_to_safe_defaults(); // sets unbootable=0, retry_count=3, successful=1
 ```
 
-#### Prebuilt vendor.img Injection
-Google's driver package provides `vendor.img` as an existing filesystem (`vendor/google_devices/tangorpro/proprietary/vendor.img`). Because this image is prebuilt, running `m superimage` packages Google's stock vendor image rather than the newly built binary from `out/target/product/tangorpro/vendor/bin/hw/`.
+#### Why BootControl Requires Vendor Injection vs. system_ext Relocation
+A common question in Treble bring-up is: *Why inject BootControl into `vendor.img` while relocating other automotive HALs to `system_ext`?*
+
+1. **Early Boot Execution Timing (`class early_hal`):**  
+   BootControl is invoked by `init` during early initialization (`class early_hal`) before dynamic partitions like `/system_ext` are mounted. Moving BootControl to `/system_ext` would cause `init` to fail before storage partitions can be mounted.
+2. **Pre-existing Vendor VINTF & Init Definition:**  
+   Google's prebuilt `vendor.img` already defines `/vendor/bin/hw/android.hardware.boot-service.default-pixel` in its init `.rc` files and `/vendor/etc/vintf/manifest.xml`. Replacing the binary directly in `vendor.img` preserves the existing vendor VINTF contract and SELinux domain without requiring vendor policy changes.
+
+Because Google's driver package provides `vendor.img` as an existing filesystem (`vendor/google_devices/tangorpro/proprietary/vendor.img`), running `m superimage` packages Google's stock vendor image rather than the newly built binary from `out/target/product/tangorpro/vendor/bin/hw/`.
 
 To ensure the patched HAL is included in `super.img`, inject the compiled binary into the vendor image using `debugfs`:
 
@@ -217,10 +224,16 @@ touch.orientationAware = 1
 ```
 This aligns touch coordinates and USI active stylus tracking with the 2560x1600 physical display in landscape orientation.
 
-### 4. Automotive Treble HALs in system_ext
-Because `vendor.img` cannot be rebuilt from source without proprietary SoC sources, automotive HALs are relocated to `system_ext`:
-- **Vehicle HAL (VHAL):** Built as `android.hardware.automotive.vehicle@V3-default-service` in `system_ext` with `type="framework"` in its VINTF manifest.
+### 4. Automotive Treble HALs in system_ext (Framework HAL Architecture)
+Standard automotive platforms host the Vehicle HAL (VHAL) and AudioControl HAL in `/vendor`. However, on consumer hardware like the Pixel Tablet:
+1. **No Existing Vendor Definitions:** The stock vendor image contains no automotive VINTF entries, init scripts, or automotive SELinux type definitions.
+2. **Treble Integrity:** Modifying the prebuilt vendor partition's compiled SELinux policy (`vendor_sepolicy.cil`) and VINTF manifests is fragile and breaks Treble isolation.
+
+Following official Android Treble design for platform extensions (the same pattern used by Automotive GSI and Cuttlefish), automotive domain HALs are hosted in `system_ext` as **Framework HALs**:
+- **Vehicle HAL (VHAL):** Built as `android.hardware.automotive.vehicle@V3-default-service` in `system_ext` (`system_ext_specific: true`) with `type="framework"` in its VINTF manifest.
 - **AudioControl HAL:** Relocated to `system_ext` with dynamic multizone routing enabled.
+
+This cleanly separates device-specific hardware drivers (which remain untouched in the vendor partition) from automotive domain logic (managed in the framework-extensible `system_ext` partition).
 
 ### 5. Automotive Windowing & Car Launcher
 In `packages/services/Car/car_product/dewd/rro/CarUpdatableDewdRRO/res/values/config.xml`:
